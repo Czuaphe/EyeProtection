@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        #myCanvas {
+            /* border: 1px solid black; */
+            /* margin: 20px auto; */
+            /* display: block; */
+        }
+    </style>
+</head>
+
+<body style="margin: 0;">
+    <!--canvas:"画布"，使用来绘制图形的，最终以图片的形式显示在浏览器上，默认宽高300/150-->
+
+    <canvas id="myCanvas">
+        当前浏览器不支持canvas---不兼容
+    </canvas>
+
+</body>
+<script type="text/javascript">
+    //		在JS当中,处理canvas绘制过程
+    //		1.获取画布对象
+    var canvas = document.getElementById("myCanvas");
+    //		注意:在canvas中不使用css样式设置宽高,canvas绘制的图像会发生形变;
+    //		可以使用属性设置;
+            canvas.width=window.innerWidth - 4
+            canvas.height = window.innerHeight - 4
+
+    //获取绘制环境的上下文---canvas的'画笔'
+    var pencil = canvas.getContext("2d");
+
+    function random(m, n) {
+        return Math.floor(Math.random() * (n - m + 1) + m);
+    }
+    //通过面向对象的思想，创建小球，以及调用小球移动的方法
+    function Ball() {
+        //设置属性
+        //随机小球的半径
+        this.r = random(10, 20);
+        //随机小球的颜色
+        this.color = "rgb(" + random(0, 255) + "," + random(0, 255) + "," + random(0, 255) + ")";
+        //随机小球圆心x,圆心y
+        this.x = random(this.r, canvas.width - this.r);//保证小球不出去
+        this.y = random(this.r, canvas.height - this.r);
+        //随机速度（控制移动方向）
+        //			水平方向上的速度    一半几率  random(0,1) ? 1：-1     (random(1,10) >= 5 ? 1 : -1)
+        this.speedX = random(10, 15) * (random(0, 1) ? 1 : -1);
+        //垂直方向上的速度
+        this.speedY = random(10, 15) * (random(0, 1) ? 1 : -1);
+    }
+    //原型中的写小球移动的方法
+    Ball.prototype.move = function () {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        //小球碰撞四个边界反弹
+        //左边界
+        if (this.x <= this.r) {
+            this.x = this.r;
+            //反弹
+            this.speedX *= -1;
+        }
+        //右边界
+        if (this.x >= canvas.width - this.r) {
+            this.x = canvas.width - this.r;
+            //反弹
+            this.speedX *= -1;
+        }
+        //上边界
+        if (this.y <= this.r) {
+            this.y = this.r;
+            //反弹
+            this.speedY *= -1;
+        }
+        //下边界
+        if (this.y >= canvas.height - this.r) {
+            this.y = canvas.height - this.r;
+            //反弹
+            this.speedY *= -1;
+        }
+    }
+    //绘制小球的方法
+    Ball.prototype.draw = function () {
+        //开始绘制
+        pencil.beginPath();
+        pencil.arc(this.x, this.y, this.r, 0, Math.PI * 2, false);
+        //填充
+        pencil.fillStyle = this.color;
+        pencil.fill();
+    }
+    var balls = [];//存储所有的小球对象
+    //创建对象
+    for (var i = 0; i < 10; i++) {
+        var ball = new Ball();
+        balls.push(ball);
+    }
+    pencil.shadowColor = "lightcyan";
+    pencil.shadowBlur = 30;
+    //让小球移动起来
+    setInterval(function () {
+        //每次小球重新绘制和移动移动之前,清空画布中的内容
+        pencil.clearRect(0, 0, canvas.width, canvas.height);
+
+        pencil.fillStyle = '#fff';
+        pencil.fillRect(0, 0, canvas.width, canvas.height);
+
+        pencil.beginPath();
+        // pencil.fillStyle = "black";
+        // pencil.fillRect(0, 0, canvas.width, canvas.height);
+        for (var i = 0; i < balls.length; i++) {
+            balls[i].draw();//绘制小球
+            balls[i].move();//移动小球
+        }
+    }, 20)
+</script>
+
+</html>
